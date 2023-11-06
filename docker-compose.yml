@@ -1,0 +1,34 @@
+version: '0.14'
+
+services:
+  redis:
+    container_name: n2rich-redis
+    image: redis:7.0.11-alpine
+
+  django:
+    container_name: django
+    build:
+      context: ./n2rich
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./n2rich:/usr/src/app
+    ports:
+      - 8001:8000
+    environment:
+      - DEBUG=1
+      - SECRET_KEY=0m9£Jx.nAf*SD_*_s90Jasdgf443jajsdkf08as54?df0fa8sdsf7as753
+    depends_on:
+      - redis
+
+  celery:
+    container_name: nnrich-celery
+    build:
+      context: ./n2rich
+    command: celery --app=n2rich worker -l INFO
+    volumes:
+      - ./n2rich:/usr/src/app
+    environment:
+      - DEBUG=1
+      - SECRET_KEY=0m9£Jx.nAf*SD_*_s90Jasdgf443jajsdkf08as54?df0fa8sdsf7as753
+    depends_on:
+      - redis
