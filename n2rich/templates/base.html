@@ -1,4 +1,5 @@
 {% load static %}
+{% load username %}
 {% load static tailwind_tags %}
 <!DOCTYPE html>
 <html lang="en">
@@ -43,31 +44,32 @@
             </svg>
           </button>
         </div>
-        <div class="hidden text-sm lg:flex lg:min-w-0 lg:flex-1 lg:justify-center lg:gap-x-6">
-          <a href="/" class="rounded-lg p-2 hover:text-blue-700 text-base font-bold text-slate-700">Home</a>
-
-          <a href="#" class="rounded-lg p-2 hover:text-blue-700 text-base font-bold text-slate-700">Documentation</a>
-
-          <a href="#" class="rounded-lg p-2 hover:text-blue-700 text-base font-bold text-slate-700">Open-Source</a>
-        </div>
+        <nav class="hidden lg:flex">
+          <ul class="list-none flex flex-row justify-center items-center space-x-2 text-[0.95rem]">
+            {% with url_name=request.resolver_match.url_name %}
+             <li><a class="font-semibold transition-all hover:bg-blue-100/70 rounded-md px-4 py-2.5 cursor-pointer h-[34px] flex items-center tracking-tight {% if url_name == 'index' %}bg-blue-50/70{% endif %}" href="{% url 'index' %}">Home</a></li>
+             <li><a class="font-semibold transition-all hover:bg-blue-100/70 rounded-md px-4 py-2.5 cursor-pointer h-[34px] flex items-center tracking-tight {% if url_name == 'analysis' %}bg-blue-50/70{% endif %}" href="{% url 'analysis' %}">Analysis</a></li>
+             <li><a class="font-semibold transition-all hover:bg-blue-100/70 rounded-md px-4 py-2.5 cursor-pointer h-[34px] flex items-center tracking-tight {% if url_name == 'get_record' %}bg-blue-50/70{% endif %}" href="{% url 'get_record' %}">Records</a></li>
+             <li><a class="font-semibold transition-all hover:bg-blue-100/70 rounded-md px-4 py-2.5 cursor-pointer h-[34px] flex items-center tracking-tight" href="#">Contact Us</a></li>
+             {% endwith %}
+          </ul>
+       </nav>
         <div class="hidden lg:flex lg:min-w-0 lg:flex-1 lg:justify-end">
-          {% if not request.user.is_authenticated %}
-          <a href="" class="inline-block mr-2 px-3 py-1.5 text-sm font-semibold leading-6 text-slate-700 hover:text-blue-500">Sign Up</a>
-          {% endif %}
           {% if request.user.is_authenticated %}
-          <a href="" class="flex inline-block mr-2 rounded-lg text-blue-600 px-3 py-1.5 text-sm font-semibold leading-6 bg-blue-200 shadow-sm ring-1 ring-blue-900/10 hover:ring-blue-900/20">
-            <svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" class="mr-2 mt-0.5 h-5 w-5" viewBox="0 0 448 512"><!--! Font Awesome Pro 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. --><path d="M448 80v48c0 44.2-100.3 80-224 80S0 172.2 0 128V80C0 35.8 100.3 0 224 0S448 35.8 448 80zM393.2 214.7c20.8-7.4 39.9-16.9 54.8-28.6V288c0 44.2-100.3 80-224 80S0 332.2 0 288V186.1c14.9 11.8 34 21.2 54.8 28.6C99.7 230.7 159.5 240 224 240s124.3-9.3 169.2-25.3zM0 346.1c14.9 11.8 34 21.2 54.8 28.6C99.7 390.7 159.5 400 224 400s124.3-9.3 169.2-25.3c20.8-7.4 39.9-16.9 54.8-28.6V432c0 44.2-100.3 80-224 80S0 476.2 0 432V346.1z"/></svg>            See Records
+          <a href="{% url 'user_records' %}" class="flex inline-block mr-2 rounded-lg text-blue-600 px-3 py-1.5 text-sm font-semibold leading-6 bg-blue-100 shadow-sm ring-1 ring-blue-600/30 hover:ring-blue-600/60">
+            <svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" class="mr-2 mt-0.5 h-5 w-5" viewBox="0 0 448 512"><!--! Font Awesome Pro 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. --><path d="M448 80v48c0 44.2-100.3 80-224 80S0 172.2 0 128V80C0 35.8 100.3 0 224 0S448 35.8 448 80zM393.2 214.7c20.8-7.4 39.9-16.9 54.8-28.6V288c0 44.2-100.3 80-224 80S0 332.2 0 288V186.1c14.9 11.8 34 21.2 54.8 28.6C99.7 230.7 159.5 240 224 240s124.3-9.3 169.2-25.3zM0 346.1c14.9 11.8 34 21.2 54.8 28.6C99.7 390.7 159.5 400 224 400s124.3-9.3 169.2-25.3c20.8-7.4 39.9-16.9 54.8-28.6V432c0 44.2-100.3 80-224 80S0 476.2 0 432V346.1z"/></svg>See Records
           </a>
-          <a href="#" class="flex inline-block mr-2 rounded-lg text-blue-600 px-3 py-1.5 text-sm font-semibold leading-6 bg-blue-200 shadow-sm ring-1 ring-blue-900/10 hover:ring-blue-900/20">
+          <a href="#" class="flex inline-block mr-2 rounded-lg text-blue-600 px-3 py-1.5 text-sm font-semibold leading-6 bg-blue-100 shadow-sm ring-1 ring-blue-600/30 hover:ring-blue-600/60">
             <svg fill="currentColor" class="mr-2 mt-0.5 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Pro 6.2.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. --><path d="M352 128c0 70.7-57.3 128-128 128s-128-57.3-128-128S153.3 0 224 0s128 57.3 128 128zM0 482.3C0 383.8 79.8 304 178.3 304h91.4C368.2 304 448 383.8 448 482.3c0 16.4-13.3 29.7-29.7 29.7H29.7C13.3 512 0 498.7 0 482.3zM625 177L497 305c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L591 143c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"/></svg>
-            {{ request.user }}
+            {{ request.user|username_first:"@" }}
           </a>
-          <a href="" class="inline-block rounded-lg px-3 py-1.5 text-sm font-semibold leading-6 text-slate-700 shadow-sm ring-1 ring-gray-900/10 hover:ring-gray-900/20">
+          <a href="{% url 'logout' %}?next={{request.path}}" class="inline-block rounded-lg px-3 py-1.5 text-sm font-semibold leading-6 text-slate-700 shadow-sm ring-1 ring-gray-900/10 hover:ring-gray-900/20">
             Log out
             <span class="ml-1 font-bold text-indigo-200" aria-hidden="true">&rarr;</span>
           </a>
           {% else %}
-          <a href="" class="inline-block rounded-lg px-3 py-1.5 text-sm font-semibold leading-6 text-slate-700 shadow-sm ring-1 ring-gray-900/10 hover:ring-gray-900/20">Log in</a>
+          <a href="{% url 'signup' %}?next={{request.path}}" class="inline-block mr-2 px-3 py-1.5 text-sm font-semibold leading-6 text-slate-700 hover:text-blue-500">Sign Up</a>
+          <a href="{% url 'login' %}?next={{request.path}}" class="inline-block rounded-lg px-3 py-1.5 text-sm font-semibold leading-6 text-slate-700 shadow-sm ring-1 ring-gray-900/10 hover:ring-gray-900/20">Log in</a>
           {% endif %}
         </div>
       </nav>

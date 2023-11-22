@@ -9,5 +9,8 @@
     @apply visible z-50;
 }
 
-@tailwind utilities;
+html, body {
+  scroll-behavior: smooth;
+}
 
+@tailwind utilities;

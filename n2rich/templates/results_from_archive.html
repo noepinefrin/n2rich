@@ -206,7 +206,7 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            var progressUrl = "{% url 'celery_progress:task_status' task_id %}";
+            var progressUrl = "{% url 'completed_results' task_id %}";
             console.log(progressUrl)
             CeleryProgressBar.initProgressBar(progressUrl, {
                 onProgress: customProgress,

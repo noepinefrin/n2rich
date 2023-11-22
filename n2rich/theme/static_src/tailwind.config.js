@@ -13,7 +13,15 @@ module.exports = {
 
         /*  Templates within theme app (<tailwind_app_name>/templates), e.g. base.html. */
         '../templates/**/*.html',
-
+        '../enrichment/**/*.py',
+        './../enrichment/**/*.py',
+        '../../../enrichment/**/*.py',
+        './../../enrichment/**/*.py',
+        '../staticfiles/js/*.js',
+        '../../staticfiles/js/*.js',
+        './../../staticfiles/js/*.js',
+        './staticfiles/js/*.js',
+        './../../../staticfiles/js/*.js',
         /*
          * Main templates directory of the project (BASE_DIR/templates).
          * Adjust the following line to match your project structure.

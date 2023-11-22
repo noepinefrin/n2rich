@@ -87,11 +87,8 @@
         "ESCAPE",
         "Allen_Brain_Atlas_10x_scRNA_2021",
         "HuBMAP_ASCT_plus_B_augmented_w_RNAseq_Coexpression",
-        "GTEx_Tissue_Expression_Up",
-        "GTEx_Tissue_Expression_Down",
         "Cancer_Cell_Line_Encyclopedia",
-        "NCI-60_Cancer_Cell_Lines",
-        "Tissue_Protein_Expression_from_Human_Proteome_Map"
+        "NCI-60_Cancer_Cell_Lines"
     ],
     "Misc": [
         "HMDB_Metabolites",

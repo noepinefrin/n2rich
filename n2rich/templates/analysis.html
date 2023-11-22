@@ -1,15 +1,23 @@
 {% extends 'base.html' %}
 
+{% load static %}
 {% block content %}
-<main class="py-8 px-36">
-    <div class="flex justify-center mb-10">
-        <h1 class="max-w-2xl font-semibold tracking-tight px-6 py-1.5 rounded-lg text-blue-800 leading-none sm:text-xl md:text-3xl xl:text-3xl">—analyze your biomarker candidates—</h1>
+<main class="px-4 lg:px-20">
+  <div class="flex justify-center mt-10 mb-10">
+    <div class="text-center">
+        <div class="text-xs uppercase font-bold tracking-wider text-blue-600/50 -mb-1">
+          YOU START
+        </div>
+        <h2 class="text-5xl font-black text-blue-600/90">
+          Analysis
+        </h2>
     </div>
-    <div class="grid grid-cols-1 lg:grid-cols-9 relative">
-          <div class="mr-auto lg:col-start-2 lg:col-span-4 place-self-center">
-                  <div class="px-10 pb-6 flex flex-wrap">
+  </div>
+    <div class="flex flex-wrap grid grid-cols-1 lg:grid-cols-9">
+          <div class="mr-auto col-span-1 lg:col-start-2 lg:col-span-4 place-self-start">
+                  <div class="px-1 lg:px-10 pb-6 mt-4 flex flex-wrap">
                     <div class="flex flex-wrap w-full">
-                      <div class=" md:w-5/6 md:pr-10">
+                      <div class="mb-6 md:w-5/6 md:pr-10">
                         <div class="flex relative pb-16">
                           <div class="h-full w-10 absolute inset-0 flex items-center justify-center">
                             <div class="h-full w-1 bg-blue-200 pointer-events-none"></div>
@@ -57,23 +65,36 @@
                     </div>
                   </div>
           </div>
-      <div class="col-start-6 col-span-4 ">
+      <div class="col-span-1 lg:col-start-6 lg:col-span-3 ">
           <form action="" method="post">
               {% csrf_token %}
               <div class="grid gap-6 mb-6 md:grid-cols-2 border-2 border-blue-100 bg-blue-50 px-8 pt-10 pb-6 rounded-xl">
               {% for field in form %}
-                <div class="flex flex-wrap">
-                        {{ field.errors }}
+                <div id="{{ field.auto_id }}" class="{% if field.name == 'email' %} hidden {% endif %} flex flex-wrap col-span-2">
+                  {% if field.name != 'send_me_email' %}
+                    {{ field.errors }}
                     <label class="block mb-2 text-sm font-semibold text-lg text-slate-700" for="{{field.id_for_label}}">
-                        {{field.label}}
+                        {{field.label}}{% if field.name == 'gene_list' or field.name == 'enrichment_field'%}**{% endif %}
                     </label>
                     <div class="has-tooltip">
                         <span class='tooltip rounded text-xs shadow-lg p-1.5 bg-blue-100 text-blue-500 -mt-8'>{{ field.help_text}}</span>
                         <svg class="w-4 h-4 ml-1 mt-0.5 text-blue-400 hover:text-blue-500" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path></svg>
                     </div>
                         {{ field }}
+                    {% else %}
+                      {{ field.errors }}
+                      {{ field }}
+                      <label class="block text-sm font-semibold text-lg text-slate-700" for="{{field.id_for_label}}">
+                          {{field.label}}
+                      </label>
+                      <div class="has-tooltip">
+                          <span class='tooltip rounded text-xs shadow-lg p-1.5 bg-blue-100 text-blue-500 -mt-8'>{{ field.help_text}}</span>
+                          <svg class="w-4 h-4 ml-1 mt-0.5 text-blue-400 hover:text-blue-500" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path></svg>
+                      </div>
+                    {% endif %}
                 </div>
               {% endfor %}
+              <p class="col-span-2 text-xs text-slate-500 -mb-8">** fields are required.</p>
               <p class="col-span-2 text-xs text-slate-500">We’ll never share your details. Read our <a href="#" class="text-blue-700 hover:underline">Privacy Policy</a>.</p>
             </div>
 
@@ -88,5 +109,6 @@
         </div>
     </div>
 
+    <script src="{% static 'js/checkbox.js' %}"></script>
 </main>
 {% endblock %}

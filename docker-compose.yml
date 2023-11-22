@@ -4,6 +4,8 @@ services:
   redis:
     container_name: n2rich-redis
     image: redis:7.0.11-alpine
+    restart: always
+
 
   django:
     container_name: django
@@ -15,13 +17,15 @@ services:
     ports:
       - 8001:8000
     environment:
+      - EMAIL_HOST_USER=berkaybiyolojizm@gmail.com
+      - EMAIL_HOST_PASSWORD=pbhu ykjr ffhi negk
       - DEBUG=1
       - SECRET_KEY=0m9£Jx.nAf*SD_*_s90Jasdgf443jajsdkf08as54?df0fa8sdsf7as753
     depends_on:
       - redis
 
   celery:
-    container_name: nnrich-celery
+    container_name: n2rich-celery
     build:
       context: ./n2rich
     command: celery --app=n2rich worker -l INFO
