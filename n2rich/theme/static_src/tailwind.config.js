@@ -52,7 +52,16 @@ module.exports = {
         // '../../**/*.py'
     ],
     theme: {
-        extend: {},
+        extend: {
+            colors: {
+                transparent: 'transparent',
+                current: 'currentColor',
+                'mrgreen': '#007a73',
+                'mrgreen-light': '#008981',
+                'mrblack': '#231f20'
+            }
+        },
+
     },
     plugins: [
         /**

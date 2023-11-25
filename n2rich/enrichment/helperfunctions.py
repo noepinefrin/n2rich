@@ -5,6 +5,7 @@ import os
 def string_parser(string: str) -> list:
     if type(string) != str:
         return None
+    string = string.upper()
     return re.findall(r'([^ ,\t\n\r\f]+)', string)
 
 def get_selected_field_dbs(field) -> list:
@@ -29,4 +30,4 @@ def get_object_or_none(model, **kwargs):
         return None
 
 def get_upload_path(instance, filename):
-    return os.path.join(instance.task_id, filename)
+    return os.path.join("{}/{}/{}".format(instance.analysed_at.year, instance.analysed_at.month, instance.analysed_at.day), filename)

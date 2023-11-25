@@ -15,12 +15,12 @@ class PasswordResetConfirmationForm(SetPasswordForm):
     new_password1 = forms.CharField(
         label=_("New password"),
         widget=forms.PasswordInput(attrs={'autocomplete': 'new-password',
-                                          'class': 'bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5'}),
+                                          'class': 'bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-slate-500 focus:border-slate-500 block w-full p-2.5'}),
     )
     new_password2 = forms.CharField(
         label=_("New password (again)"),
         widget=forms.PasswordInput(attrs={'autocomplete': 'new-password',
-                                          'class': 'bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5'}),
+                                          'class': 'bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-slate-500 focus:border-slate-500 block w-full p-2.5'}),
     )
 
 class UserPasswordResetForm(PasswordResetForm):
@@ -28,7 +28,7 @@ class UserPasswordResetForm(PasswordResetForm):
         super(UserPasswordResetForm, self).__init__(*args, **kwargs)
 
     email = forms.EmailField(label=_('E-Mail Address'), widget=forms.EmailInput(attrs={
-        'class': 'bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5',
+        'class': 'bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-slate-500 focus:border-slate-500 block w-full p-2.5',
         'placeholder': 'mary.william@example.com',
         'type': 'email',
         'name': 'email'
@@ -61,20 +61,20 @@ class EnrichmentRecordForm(forms.ModelForm):
         super(EnrichmentRecordForm, self).__init__(*args, **kwargs)
 
         self.fields.get('gene_list').widget.attrs.update({
-            'class': 'bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5',
+            'class': 'bg-white border h-32 max-h-64 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-slate-500 focus:border-slate-500 block w-full p-2.5',
             'placeholder': 'BRCA1, BRCA2, APOE, APEX1...'
         })
 
         self.fields.get('enrichment_field').widget.attrs.update({
-            'class': 'bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5'
+            'class': 'bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-slate-500 focus:border-slate-500 block w-full p-2.5'
         })
 
         self.fields.get('shareable').widget.attrs.update({
-            'class': 'bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5'
+            'class': 'bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-slate-500 focus:border-slate-500 block w-full p-2.5'
         })
 
         self.fields.get('description').widget.attrs.update({
-            'class': 'p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500',
+            'class': 'p-2.5 w-full h-12 max-h-36 text-sm text-gray-900 bg-white rounded-lg border border-gray-300 focus:ring-slate-500 focus:border-slate-500',
             'placeholder': 'Breast cancer related biomarker candidates.'
         })
 
@@ -96,16 +96,18 @@ class EnrichmentSearchForm(forms.ModelForm):
         exclude = ['is_task_id_valid', 'is_permitable_search']
 
     def __init__(self, *args, **kwargs):
+
+        self.user = kwargs.pop('user', None)
+
         super(EnrichmentSearchForm, self).__init__(*args, **kwargs)
 
         self.fields.get('searched_task_id').widget.attrs.update({
-            'class': 'bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5',
+            'class': 'bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-slate-500 focus:border-slate-500 block w-full ps-10 p-2.5',
             'placeholder': 'Copy your task_id, the format must be UUID'
         })
 
     def clean(self):
         data = self.cleaned_data
-        user = data.get('user', None)
         model_object = get_object_or_none(EnrichmentRecordModel, task_id=data.get('searched_task_id', None))
 
         if not model_object:
@@ -114,15 +116,14 @@ class EnrichmentSearchForm(forms.ModelForm):
                 'is_task_id_valid': False
             })
 
-            raise ValidationError(_("Enter a valid task id."))
+            self.add_error('searched_task_id', "Task ID is not valid.")
 
-        if model_object.shareable != 'public' and (user == None or user != model_object.user):
+        else:
+            if model_object.shareable != 'public' and (not self.user.is_authenticated or self.user != model_object.user):
+                self.add_error('searched_task_id', "This result is flagged as PRIVATE. If its your analysis, you should sign in as user which is performed this analysis.")
 
-            data.update({
-                'is_permitable_search': False
-            })
 
-            raise ValidationError(_("Result is flagged as private."))
+        "065a9707-9200-422a-9003-bcb025801da8" # BERKAY OZCELIK PRIVATE TAG
+        "b8285e61-9994-4c39-a311-c9cd6eca7e8b" # ILETISIM MUGZ PRIVATE TAG
 
-        return data
 

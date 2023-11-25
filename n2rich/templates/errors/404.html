@@ -1,0 +1,31 @@
+{% extends 'errors/errorbase.html' %}
+
+{% load static %}
+{% load static tailwind_tags %}
+
+{% block content %}
+<main class="h-screen w-full flex flex-col justify-center items-center bg-[#1A2238]">
+    <h1 class="text-2xl font-extrabold text-mrgreen tracking-widest -mb-4">HTTP</h1>
+	<h1 class="text-9xl font-extrabold text-white tracking-widest">404</h1>
+	<div class="bg-mrgreen mb-24 px-4 py-1 text-slate-900 font-bold text-xs rounded rotate-12 absolute">
+		PAGE NOT FOUND
+	</div>
+    <span class="mt-6 text-white text-xl font-bold">
+        The page you were looking for doesn't exist.
+    </span>
+    <p class="text-white mt-1 text-xs font-light">You have mistyped the address or the page may have removed.</p>
+	<button class="mt-8">
+      <a href="{% url 'index' %}"
+        class="relative inline-block text-sm font-medium text-mrgreen group active:mrgreen focus:outline-none focus:ring"
+      >
+        <span
+          class="absolute inset-0 transition-transform translate-x-0.5 translate-y-0.5 bg-mrgreen group-hover:translate-y-0 group-hover:translate-x-0"
+        ></span>
+
+        <span class="relative block px-8 py-3 bg-[#1A2238] font-bold border border-current">
+          <router-link>Go Home</router-link>
+        </span>
+      </a>
+    </button>
+</main>
+{% endblock content %}

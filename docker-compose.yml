@@ -17,15 +17,15 @@ services:
     ports:
       - 8001:8000
     environment:
-      - EMAIL_HOST_USER=berkaybiyolojizm@gmail.com
-      - EMAIL_HOST_PASSWORD=pbhu ykjr ffhi negk
+      - EMAIL_HOST_USER=no-reply@n2rich.com
+      - EMAIL_HOST_PASSWORD=fN75BxSn
       - DEBUG=1
       - SECRET_KEY=0m9£Jx.nAf*SD_*_s90Jasdgf443jajsdkf08as54?df0fa8sdsf7as753
     depends_on:
       - redis
 
-  celery:
-    container_name: n2rich-celery
+  celery_worker:
+    container_name: n2rich-celery-worker
     build:
       context: ./n2rich
     command: celery --app=n2rich worker -l INFO
@@ -36,3 +36,14 @@ services:
       - SECRET_KEY=0m9£Jx.nAf*SD_*_s90Jasdgf443jajsdkf08as54?df0fa8sdsf7as753
     depends_on:
       - redis
+
+  celery_beat:
+    container_name: n2rich-celery-beat
+    build:
+      context: ./n2rich
+    command: celery --app=n2rich beat
+    volumes:
+      - ./n2rich:/usr/src/app
+    depends_on:
+      - redis
+

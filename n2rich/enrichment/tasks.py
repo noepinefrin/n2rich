@@ -1,14 +1,36 @@
+from django.core.files.base import ContentFile
+from django.utils import timezone as tz
+
+from n2rich.celery import app
 from celery_progress.backend import ProgressRecorder
 from celery import Task
-from .helperfunctions import get_selected_field_dbs, string_parser, replacedb
+from celery.schedules import crontab
+
+from .helperfunctions import get_selected_field_dbs, string_parser, replacedb, get_object_or_none
 from .enrichment import ConnectDB, Enrichment
-from n2rich.celery import app
-from enrichment.models import EnrichmentRecordModel
-from enrichment.helperfunctions import get_object_or_none
+from .models import EnrichmentRecordModel
 
-from django.core.files.base import ContentFile
-
+import datetime
 import json
+
+
+@app.task
+def clean_db_after_14_days():
+    d = tz.now() - datetime.timedelta(days=14)
+    later_than_14_days_results = EnrichmentRecordModel.objects.filter(analysed_at__lt=d)
+
+    for record in later_than_14_days_results:
+        record.result.delete() # Delete results after 14 days because of storage issues. (sry)
+        record.is_active = False
+        record.save()
+
+
+@app.on_after_finalize.connect
+def setup_periodic_tasks(sender, **kwargs):
+    sender.add_periodic_task(
+        crontab(hour=5, minute=0), # Execute every day at 5.00 A.M.
+        clean_db_after_14_days.s(),
+    )
 
 class BaseTask(Task):
     abstract = True
@@ -27,9 +49,10 @@ class BaseTask(Task):
         if obj:
             json_retval = json.dumps(retval)
 
-            obj.result.save('analysis.json', ContentFile(json_retval))
+            obj.result.save(f'{task_id}.json', ContentFile(json_retval))
             obj.complete = True
             obj.success = True
+            obj.is_active = True
             obj.save()
 
 @app.task(bind=True, base=BaseTask)

@@ -1,16 +1,21 @@
 from django.db import models
-from .validators import gene_list_validator
-from .helperfunctions import string_parser, get_upload_path
-
+from django.dispatch import receiver
 from django.contrib.auth.models import (
     AbstractBaseUser,
     PermissionsMixin,
     BaseUserManager
 )
 
+from .validators import gene_list_validator
+from .helperfunctions import string_parser, get_upload_path
+
+import os
+
 # User Manager Model
 class UserManager(BaseUserManager):
-    """Manager for users."""
+    """
+    Manager class for users.
+    """
 
     def create_user(self, email, password=None, **extra_fields):
         """Create, save and return a new user."""
@@ -33,8 +38,10 @@ class UserManager(BaseUserManager):
 
 # User Model
 
-class User(AbstractBaseUser, PermissionsMixin):
-    """User in the system."""
+class User(PermissionsMixin, AbstractBaseUser):
+    """
+    Default user class.
+    """
     email = models.EmailField(max_length=255, unique=True)
     name = models.CharField(max_length=255)
     is_active = models.BooleanField(default=True)
@@ -48,7 +55,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 # EnrichmentRecordModel
 class EnrichmentRecordModel(models.Model):
     """
-    Enrichment Records for analysed genes.
+    Enrichment Records for analysed genes saved from `url:analysis/`.
     """
     ENRICHMENT_CHOICES = (
         ('Transcription', 'Transcription'),
@@ -73,6 +80,7 @@ class EnrichmentRecordModel(models.Model):
     complete = models.BooleanField('complete', default=False)
     success = models.BooleanField('success', default=False)
     result = models.FileField('result', upload_to=get_upload_path, null=True, blank=True)
+    is_active = models.BooleanField('is_active', default=False)
 
     def __str__(self):
         return f'{len(self.listed_genes)} genes analyzed at {self.enrichment_field} field.'
@@ -91,7 +99,20 @@ class EnrichmentRecordModel(models.Model):
         """
         return len(string_parser(self.gene_list))
 
+@receiver(models.signals.post_delete, sender=EnrichmentRecordModel)
+def auto_delete_file_on_delete(sender, instance, **kwargs):
+    """
+    Deletes results from filesystem
+    when corresponding `EnrichmentRecordModel` object is deleted.
+    """
+    if instance.result:
+        if os.path.isfile(instance.result.path):
+            os.remove(instance.result.path)
+
 class EnrichmentSearchRecordModel(models.Model):
+    """
+    Search records saved from `url:get_record/`
+    """
     searched_task_id = models.CharField('searched_task_id', max_length=50, blank=False, null=False)
     searched_at = models.DateTimeField(auto_now_add=True)
     is_task_id_valid = models.BooleanField('is_task_id_valid', null=True)

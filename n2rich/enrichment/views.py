@@ -1,7 +1,7 @@
 from typing import Any
 
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpRequest, HttpResponse, HttpResponseRedirect, JsonResponse
+from django.http import HttpRequest, HttpResponse, HttpResponseRedirect, JsonResponse, HttpResponseForbidden
 from django.urls import reverse
 from django.views import generic
 from django.contrib.auth.forms import UserCreationForm
@@ -11,11 +11,11 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 
 from django.contrib.auth import views as auth_views
 
-import redis
 from .forms import EnrichmentRecordForm, EnrichmentSearchForm, UserPasswordResetForm
 from .models import EnrichmentRecordModel
 
 from .tasks import enrichment_analysis
+from .permissions import has_perm
 from .helperfunctions import get_selected_field_dbs, get_object_or_none
 
 import json
@@ -38,6 +38,8 @@ class UserRecords(LoginRequiredMixin, generic.ListView):
 
     login_url = '/login/'
     redirect_field_name = 'next'
+
+    paginate_by = 4
 
     def get_queryset(self):
 
@@ -69,6 +71,9 @@ class ResultFromArchive(generic.DetailView):
 
             obj = get_object_or_404(EnrichmentRecordModel, task_id=task_id)
 
+            if not has_perm(request, obj):
+                return HttpResponseForbidden()
+
             return JsonResponse(
                 {
                     'complete': obj.complete,
@@ -90,7 +95,9 @@ class SearchRecordView(generic.FormView):
 
     def post(self, request, *args, **kwargs):
 
-        form = self.form_class(request.POST)
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        form.full_clean()
 
         if form.is_valid():
 
@@ -99,6 +106,13 @@ class SearchRecordView(generic.FormView):
 
             return HttpResponseRedirect(reverse('record', kwargs={'task_id': task_id}))
 
+        return self.render_to_response(self.get_context_data(form=form))
+
+    def get_form_kwargs(self):
+        kwargs = super(SearchRecordView, self).get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
 
 class RecordView(generic.DetailView):
     template_name = 'record.html'
@@ -106,6 +120,16 @@ class RecordView(generic.DetailView):
     model = EnrichmentRecordModel
     slug_field = 'task_id'
     slug_url_kwarg = 'task_id'
+
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+
+        task_id = kwargs.get('task_id', None)
+        obj = get_object_or_404(EnrichmentRecordModel, task_id=task_id)
+
+        if not has_perm(request, obj):
+            return HttpResponseForbidden()
+
+        return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -125,7 +149,6 @@ class ResultView(generic.DetailView):
         enrichment_record = get_object_or_404(EnrichmentRecordModel, task_id=self.kwargs.get('task_id', None))
         field = enrichment_record.enrichment_field
         field_dbs = get_selected_field_dbs(field)
-
 
         context.update({
             'task_id': self.kwargs.get('task_id', None),
@@ -171,45 +194,6 @@ class AnalysisFormView(generic.FormView):
         kwargs['user'] = self.request.user
         return kwargs
 
-
-def progress_view(request, task_id):
-    enrichment_record = get_object_or_404(EnrichmentRecordModel, task_id=task_id)
-    field = enrichment_record.enrichment_field
-    field_dbs = get_selected_field_dbs(field)
-
-    context = {
-        'task_id': task_id,
-        'field': field,
-        'field_dbs': field_dbs
-    }
-    return render(request, 'progress.html', context=context)
-
-def analysis(request):
-    context = {}
-
-    form = EnrichmentRecordForm(request.POST or None)
-
-    if form.is_valid():
-
-        print(f'FORM ISVALID CALISTI')
-
-        gene_list_str = request.POST.get('gene_list', None)
-        enrichment_field = request.POST.get('enrichment_field', None)
-
-        result = enrichment_analysis.delay(gene_list_str, enrichment_field)
-
-        form.instance.task_id = result.task_id
-
-        form.save()
-
-        return HttpResponseRedirect(reverse('analysis_progress', kwargs={'task_id': result.task_id}))
-
-    context.update({
-        'form': form
-    })
-
-    return render(request, 'analysis.html', context)
-
 class SignupForm(UserCreationForm):
     class Meta:
         model = get_user_model()
@@ -246,31 +230,34 @@ class UserLoginView(LoginView):
             return redirect('/')
         return super().dispatch(request, *args, **kwargs)
 
-def record_view(request, task_id):
-    queryset = get_object_or_404(EnrichmentRecordModel, task_id=task_id)
-
-    context = {
-        'queryset': queryset
-    }
-
-    return render(request, 'record.html', context=context)
-
-def get_record_view(request):
-    form = EnrichmentSearchForm(request.POST or None)
-
-    context = {
-        'form': form
-    }
-
-    if form.is_valid():
-
-        task_id = form.instance.searched_task_id
-
-        form.save()
-
-        return HttpResponseRedirect(reverse('record', kwargs={'task_id': task_id}))
-
-    return render(request, 'getrecord.html', context=context)
-
 def index(request):
     return render(request, 'landing.html')
+
+def test(request):
+    return render(request, 'errors/403.html')
+
+def handler400(request, exception):
+    context = {}
+    response = render(request, "errors/400.html", context=context)
+    response.status_code = 400
+    return response
+
+
+def handler403(request, exception):
+    context = {}
+    response = render(request, "errors/403.html", context=context)
+    response.status_code = 403
+    return response
+
+def handler404(request, exception):
+    context = {}
+    response = render(request, "errors/404.html", context=context)
+    response.status_code = 404
+    return response
+
+
+def handler500(request):
+    context = {}
+    response = render(request, "errors/500.html", context=context)
+    response.status_code = 500
+    return response

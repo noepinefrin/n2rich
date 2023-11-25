@@ -16,9 +16,20 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.conf.urls import (
+    handler400, handler403, handler404, handler500
+)
+
+from enrichment import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('enrichment.urls')),
     path(r'celery_progress/', include('celery_progress.urls')),
+    path('test/', views.test, name='test')
 ]
+
+handler400 = 'enrichment.views.handler400'
+handler403 = 'enrichment.views.handler403'
+handler404 = 'enrichment.views.handler404'
+handler500 = 'enrichment.views.handler500'
