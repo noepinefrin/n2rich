@@ -20,7 +20,7 @@ def clean_db_after_14_days():
     later_than_14_days_results = EnrichmentRecordModel.objects.filter(analysed_at__lt=d)
 
     for record in later_than_14_days_results:
-        record.result.delete() # Delete results after 14 days because of storage issues. (sry)
+        record.result.delete() # Delete results after 14 days because of storage issues.
         record.is_active = False
         record.save()
 
@@ -28,7 +28,7 @@ def clean_db_after_14_days():
 @app.on_after_finalize.connect
 def setup_periodic_tasks(sender, **kwargs):
     sender.add_periodic_task(
-        crontab(hour=5, minute=0), # Execute every day at 5.00 A.M.
+        crontab(hour=6, minute=0), # Execute every day at 6.00 A.M.
         clean_db_after_14_days.s(),
     )
 
@@ -39,7 +39,7 @@ class BaseTask(Task):
         obj = get_object_or_none(EnrichmentRecordModel, task_id=task_id)
 
         if obj:
-            obj.complete = False
+            obj.complete = True
             obj.success = False
             obj.save()
 

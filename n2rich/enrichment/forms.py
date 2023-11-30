@@ -2,7 +2,7 @@ from django import forms
 from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
 
-from .models import EnrichmentRecordModel, EnrichmentSearchRecordModel
+from .models import EnrichmentRecordModel, EnrichmentSearchRecordModel, ContactUsModel
 from .helperfunctions import get_object_or_none
 
 from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
@@ -123,7 +123,35 @@ class EnrichmentSearchForm(forms.ModelForm):
                 self.add_error('searched_task_id', "This result is flagged as PRIVATE. If its your analysis, you should sign in as user which is performed this analysis.")
 
 
-        "065a9707-9200-422a-9003-bcb025801da8" # BERKAY OZCELIK PRIVATE TAG
-        "b8285e61-9994-4c39-a311-c9cd6eca7e8b" # ILETISIM MUGZ PRIVATE TAG
+class ContactUsForm(forms.ModelForm):
+
+    class Meta:
+        model = ContactUsModel
+        fields = ('name', 'email', 'subject', 'message')
+        exclude = ('contact_at', )
 
 
+    def __init__(self, *args, **kwargs):
+
+        self.user = kwargs.pop('user', None)
+
+        super(ContactUsForm, self).__init__(*args, **kwargs)
+
+        self.fields.get('name').widget.attrs.update({
+            'class': 'bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-slate-500 focus:border-slate-500 block w-full p-2.5',
+            'placeholder': 'Mary William'
+        })
+
+        self.fields.get('email').widget.attrs.update({
+            'class': 'bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-slate-500 focus:border-slate-500 block w-full p-2.5',
+            'placeholder': 'marywilliam@example.com'
+        })
+
+        self.fields.get('subject').widget.attrs.update({
+            'class': 'bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-slate-500 focus:border-slate-500 block w-full p-2.5'
+        })
+
+        self.fields.get('message').widget.attrs.update({
+            'class': 'p-2.5 w-full h-36 max-h-48 text-sm text-gray-900 bg-white rounded-lg border border-gray-300 focus:ring-slate-500 focus:border-slate-500',
+            'placeholder': 'Hello,\n\nI could not access my previous tasks, would you mind to help me?\n\nThanks, Mary.'
+        })

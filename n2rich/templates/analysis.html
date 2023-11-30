@@ -29,12 +29,12 @@
                   </svg>
                 </div>
                 <div class="flex-grow pl-4">
-                  <h2 class="font-semibold title-font text-sm text-teal-800 mb-1 tracking-wider">STEP 1
+                  <h2 class="font-semibold text-lg title-font text-sm text-teal-800 mb-1 tracking-wider">STEP 1
                     <p class="tracking-normal">SELECT FIELD WITHIN</p>
                   </h2>
                   <p class="leading-relaxed mb-1">
                     <p class="text-sm tracking-wider">Transcription, Pathways, Ontologies, Disease/Drugs and Cell Types</p>
-                    <a class="flex flex-wrap font-bold text-mrgreen mt-3" href="#">or Start with an EXAMPLE!<svg class="fill-mrgreen w-5 h-5 mt-0.5 ml-0.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M384 32c35.3 0 64 28.7 64 64V416c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V96C0 60.7 28.7 32 64 32H384zM160 144c-13.3 0-24 10.7-24 24s10.7 24 24 24h94.1L119 327c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l135-135V328c0 13.3 10.7 24 24 24s24-10.7 24-24V168c0-13.3-10.7-24-24-24H160z"/></svg>
+                    <a class="flex flex-wrap font-semibold text-md text-mrgreen font-mono rounded-md mt-4 w-fit px-2 py-1.5 transition-all hover:bg-mrgreen/5" href="{% url 'analysis_archive' EXAMPLE_RESULT %}">or look at an EXAMPLE!<svg class="fill-mrgreen w-5 h-5 mt-0.5 ml-0.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M384 32c35.3 0 64 28.7 64 64V416c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V96C0 60.7 28.7 32 64 32H384zM160 144c-13.3 0-24 10.7-24 24s10.7 24 24 24h94.1L119 327c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l135-135V328c0 13.3 10.7 24 24 24s24-10.7 24-24V168c0-13.3-10.7-24-24-24H160z"/></svg>
                     </a>
                   </p>
                 </div>
@@ -118,7 +118,5 @@
           </form>
         </div>
     </div>
-
-    <script src="{% static 'js/checkbox.js' %}"></script>
 </main>
 {% endblock %}

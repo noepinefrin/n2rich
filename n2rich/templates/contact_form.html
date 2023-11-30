@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% load static tailwind_tags %}
+
+{% block content %}
+<section class="px-4 lg:px-20 mb-16">
+
+        <!-- SEARCH BAR BEGIN -->
+    <div class="flex justify-center items-center mt-12">
+        <div class="w-full h-fit bg-white/90 rounded-lg shadow sm:max-w-md xl:p-0">
+            <div class="p-12 space-y-4 md:space-y-6 sm:p-8">
+
+                <h1 class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl">
+                    Contact Us
+                </h1>
+
+                <form action="" method="post">
+                    {% csrf_token %}
+                    <div class="grid gap-6 mb-6 md:grid-cols-2 rounded-xl">
+                    {% for field in form %}
+                      <div id="{{ field.auto_id }}" class="flex flex-wrap col-span-2">
+
+                          {{ field.errors }}
+                          <label class="block mb-2 text-sm font-semibold text-lg text-mrblack" for="{{field.id_for_label}}">
+                              {{field.label}}
+                          </label>
+                          <div class="has-tooltip">
+                              <span class='tooltip rounded text-xs font-bold shadow-lg p-2 bg-blue-50 text-mrgreen -mt-8'>{{ field.help_text }}</span>
+                              <svg class="w-4 h-4 ml-1 mt-0.5 text-mrgreen hover:text-mrgreen/80" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path></svg>
+                          </div>
+                              {{ field }}
+                      </div>
+                    {% endfor %}
+                    <p class="col-span-2 text-xs text-slate-500">We’ll never share your details. Read our <a href="#" class="text-mrgreen hover:underline">Privacy Policy</a>.</p>
+                  </div>
+
+                  <button type="submit" class="w-full font-black box-border relative z-30 inline-flex items-center justify-center w-auto px-8 py-3 overflow-hidden text-white transition-all duration-300 bg-teal-600 rounded-md cursor-pointer group ring-offset-2 ring-1 ring-teal-500 ring-offset-teal-200 hover:ring-offset-teal-600 ease focus:outline-none">
+                    <span class="absolute bottom-0 right-0 w-8 h-20 -mb-8 -mr-5 transition-all duration-300 ease-out transform rotate-45 translate-x-1 bg-white opacity-10 group-hover:translate-x-0"></span>
+                    <span class="absolute top-0 left-0 w-20 h-8 -mt-1 -ml-12 transition-all duration-300 ease-out transform -rotate-45 -translate-x-1 bg-white opacity-10 group-hover:translate-x-0"></span>
+                    <span class="relative z-20 flex items-center text-sm">
+                    SUBMIT
+                    </span>
+                  </button>
+                </form>
+            </div>
+        </div>
+    </div>
+        <!-- SEARCH BAR END -->
+</section>
+{% if messages %}
+<div id="form_message" class="fixed bottom-10 right-10 z-50 space-y-4">
+    {% for message in messages %}
+    <div class="max-w-xs rounded-md shadow-lg cursor-pointer flex gap gap-4 px-4 py-4 items-center bg-green-500 text-white transition transform ease-in-out duration-500">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<script src="{% static 'js/messagedisappear.js' %}"></script>
+
+</script>
+{% endblock content %}

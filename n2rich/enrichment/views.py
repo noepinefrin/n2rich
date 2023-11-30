@@ -1,5 +1,6 @@
 from typing import Any
 
+from django.core.mail import EmailMessage
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect, JsonResponse, HttpResponseForbidden
 from django.urls import reverse
@@ -8,10 +9,15 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import authenticate, login, get_user_model
 from django.contrib.auth.views import LoginView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib import messages
+from django.conf import settings
+from django.core.mail import get_connection
+
+from django.db.models import Q
 
 from django.contrib.auth import views as auth_views
 
-from .forms import EnrichmentRecordForm, EnrichmentSearchForm, UserPasswordResetForm
+from .forms import EnrichmentRecordForm, EnrichmentSearchForm, UserPasswordResetForm, ContactUsForm
 from .models import EnrichmentRecordModel
 
 from .tasks import enrichment_analysis
@@ -194,6 +200,16 @@ class AnalysisFormView(generic.FormView):
         kwargs['user'] = self.request.user
         return kwargs
 
+    def get_context_data(self, **kwargs):
+        context = super(AnalysisFormView, self).get_context_data(**kwargs)
+        example_result_filtered = EnrichmentRecordModel.objects.filter(
+            Q(is_active=True) &
+            Q(shareable='public') &
+            Q(gene_count__gte=8)
+            ).order_by('?').first() # Return random task to every request.
+        context['EXAMPLE_RESULT'] = example_result_filtered.task_id
+        return context
+
 class SignupForm(UserCreationForm):
     class Meta:
         model = get_user_model()
@@ -230,11 +246,57 @@ class UserLoginView(LoginView):
             return redirect('/')
         return super().dispatch(request, *args, **kwargs)
 
+class ContactUsView(generic.FormView):
+    template_name = 'contact_form.html'
+    form_class = ContactUsForm
+
+    def post(self, request, *args, **kwargs):
+
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        form.full_clean()
+
+        if form.is_valid():
+
+            name = form.cleaned_data['name']
+            email = form.cleaned_data['email']
+            subject = form.cleaned_data['subject']
+            message = form.cleaned_data['message']
+
+            connection = get_connection(
+                host=settings.EMAIL_HOST,
+                port=settings.EMAIL_PORT,
+                username=settings.EMAIL_CONTACT_FORM_USER,
+                password=settings.EMAIL_CONTACT_FORM_PASSWORD
+            )
+
+            EmailMessage(
+                subject,
+                f'EMAIL FROM: {name}, DESCRIPTION: {message}',
+                settings.EMAIL_HOST_USER,
+                [settings.EMAIL_CONTACT_FORM_USER],
+                reply_to=[email],
+                connection=connection
+            ).send(fail_silently=True)
+
+            messages.success(self.request, 'Form submit successfully')
+
+            form.save()
+
+            return HttpResponseRedirect(self.request.path_info)
+
+        return self.render_to_response(self.get_context_data(form=form))
+
+    def get_form_kwargs(self):
+        kwargs = super(ContactUsView, self).get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
 def index(request):
     return render(request, 'landing.html')
 
 def test(request):
-    return render(request, 'errors/403.html')
+    return render(request, 'errors/400.html')
 
 def handler400(request, exception):
     context = {}

@@ -8,12 +8,13 @@
 <section class="px-4 lg:px-20">
     <div class="flex justify-center mt-10 mb-10">
         <div class="text-center">
-            <div class="text-xs uppercase font-bold tracking-wider text-blue-600/50 -mb-1">
+            <div class="text-xs uppercase font-bold tracking-wider text-mrblack/70 -mb-1">
               We Analyze
             </div>
-            <h2 class="text-5xl font-black text-blue-600/90">
+            <h2 class="text-5xl font-black text-mrgreen">
               {{field}}
             </h2>
+
           </div>
     </div>
 
@@ -21,14 +22,24 @@
         <div class="hidden lg:flex w-96 pt-5">
 
             <!-- Table of Contents Start -->
-            <div class="table-of-contents bg-slate-50 w-full flex flex-col mr-8 rounded-xl border border-blue-100 sticky top-5 overflow-hidden h-[29.5rem]">
-                <div class="p-4 h-[4rem] bg-slate-50 block relative border-b border-blue-100 text-center">
-                    <div class="table-of-contents__title text-slate-800 tracking-wide text-lg font-bold">{{field}} DBs</div>
+            <div class="bg-white w-full flex font-mono flex-col mr-8 rounded-xl border border-mrblack/20 sticky top-5 overflow-hidden h-[29.5rem]">
+
+                <div class="p-4 h-[4rem] block relative border-b border-mrblack/20 text-center">
+                    <div class="text-mrblack text-lg font-bold">{{field}}</div>
+                </div>
+
+                <div class="block px-2.5 py-2.5 border-b bg-mrgreen/5 border-mrblack/20 text-center hover:bg-emerald-50">
+                    <div class="text-xs uppercase font-bold tracking-wider text-mrblack/70">
+                        TASK ID
+                    </div>
+                    <button id="task-id-button" class="text-xs font-regular tracking-wider text-mrblack/70" onclick="copyTaskIdToClipboard('task-id-button', '{{task_id}}')">
+                        {{task_id}}
+                    </button>
                 </div>
 
                 <ul class="py-2 flex flex-col overflow-y-auto">
                     {% for db in field_dbs %}
-                        <a href="#{{db}}-dbcontent" class="text-slate-500 flex text-sm px-3 py-1.5 border-l-[4px] border-transparent hover:bg-blue-50 hover:border-blue-600 hover:text-blue-600 transition-all font-semibold">
+                        <a href="#{{db}}-dbcontent" class="font-mono text-slate-500 flex text-sm px-3 py-1.5 border-l-[4px] border-transparent hover:bg-mrgreen/20 hover:border-mrgreen/80 hover:text-mrgreen/80 transition-all font-semibold">
                             {{ db|replacedb:"_" }}
                         </a>
                     {% endfor %}
@@ -81,6 +92,16 @@
                         </ul>
 
                             <div class="block opacity-100" id="{{ db }}-tab-graphs" role="tabpanel">
+                                <div class="relative h-10 w-72 min-w-[200px] mb-4">
+                                    <select id="{{db}}-chart-opt" class="peer h-full w-full rounded-md border border-gray-200 outline-none focus:outline-none focus:ring-0 focus:border-gray-200 focus:border-t-transparent text-slate-600 border-t-transparent bg-transparent px-3 py-2.5 font-sans text-sm font-regular transition-all">
+                                      <option value="" selected disabled hidden>Select format</option>
+                                      <option value="png">PNG</option>
+                                      <option value="jpeg">JPEG</option>
+                                    </select>
+                                    <label class="before:content[' '] after:content[' '] pointer-events-none absolute left-0 -top-1.5 flex h-full w-full select-none text-[11px] font-normal leading-tight text-gray-400 transition-all before:pointer-events-none before:mt-[6.5px] before:mr-1 before:block before:h-1.5 before:w-2.5 before:rounded-tl-md before:border-t before:border-l before:border-gray-200 before:transition-all after:pointer-events-none after:mt-[6.5px] after:ml-1 after:box-border after:block after:h-1.5 after:w-2.5 after:flex-grow after:rounded-tr-md after:border-t after:border-r after:border-gray-200 after:transition-all">
+                                      Export as
+                                    </label>
+                                </div>
                                 <div class="bg-blue-50/30">
                                     <canvas style="width:100%" id="{{db}}-graph">
                                     </canvas>
@@ -146,7 +167,7 @@
   <div class="flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none justify-center items-center" id="modal-id">
     <div class="relative w-5/6 lg:w-1/3 mx-auto max-w-3xl">
       <!--content-->
-      <div class="border-0 rounded-lg shadow-lg relative flex flex-col w-full bg-blue-50/90 outline-none focus:outline-none">
+      <div class="border-0 rounded-lg shadow-lg relative flex flex-col w-full bg-white outline-none focus:outline-none">
         <!--header-->
         <div class="flex items-center justify-between px-3 py-3 border-b border-solid border-slate-300 rounded-t">
             <div>
@@ -157,7 +178,7 @@
 
         </div>
         <!--body-->
-        <div class="pb-16 pt-20 bg-blue-50/50">
+        <div class="pb-16 pt-20 bg-white/90">
             <div>
                 <span id="progress-bar-percent" class="flex font-black items-center justify-center text-center text-3xl rounded-full tracking-wide text-orange-400 mb-4">
                 0%
@@ -186,15 +207,29 @@
   </div>
   <div class="flex opacity-70 fixed inset-0 z-40 bg-black" id="modal-id-backdrop"></div>
 </main>
-    <link href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css" rel="stylesheet">
-    <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
-    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+
+    <!-- DATA TABLE CSS START -->
+    <link href="{% static 'dtcss/jquery.dataTables.min.css' %}" rel="stylesheet">
+    <link href="{% static 'dtcss/buttons.dataTables.min.css' %}" rel="stylesheet">
+    <!-- DATA TABLE CSS END -->
+
+    <!-- DATA TABLE STATIC JS START -->
+    <script src="{% static 'js/dtjs/jquery-3.7.0.js' %}"></script>
+    <script src="{% static 'js/dtjs/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'js/dtjs/dataTables.buttons.min.js' %}"></script>
+    <script src="{% static 'js/dtjs/jszip.min.js' %}"></script>
+    <script src="{% static 'js/dtjs/pdfmake.min.js' %}"></script>
+    <script src="{% static 'js/dtjs/vfs_fonts.js' %}"></script>
+    <script src="{% static 'js/dtjs/buttons.html5.min.js' %}"></script>
+    <script src="{% static 'js/dtjs/buttons.print.min.js' %}"></script>
+    <!-- DATA TABLE STATIC JS END -->
 
     <script src="{% static 'js/chart.umd.js' %}"></script>
     <script src="{% static 'js/smoothtabs.js' %}"></script>
     <script src="{% static 'js/togglemodal.js' %}"></script>
     <script src="{% static 'js/tochighlight.js' %}"></script>
     <script src="{% static 'js/genescopy.js' %}"></script>
+    <script src="{% static 'js/taskidcopy.js' %}"></script>
     <script src="{% static 'js/progresshandler.js' %}"></script>
     <script src="{% static 'js/resulthandler.js' %}"></script>
 

@@ -1,3 +1,4 @@
+from collections.abc import Iterable
 from django.db import models
 from django.dispatch import receiver
 from django.contrib.auth.models import (
@@ -74,6 +75,7 @@ class EnrichmentRecordModel(models.Model):
     enrichment_field = models.CharField(max_length=30, choices=ENRICHMENT_CHOICES, blank=False, null=False, default=ENRICHMENT_CHOICES[2][1], help_text='Select field which your biomarker candidates will enriched.')
     description = models.CharField(max_length=280, help_text='Write a recollective description for enrichment analysis up to 280 character.', null=True, blank=True)
     gene_list = models.CharField(max_length=500, help_text='Copy your biomarker candidates up to 100 genes.', validators=[gene_list_validator])
+    gene_count = models.PositiveSmallIntegerField('gene_c', blank=True, null=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
     task_id = models.CharField(max_length=50, unique=True, null=True, blank=True)
     shareable = models.CharField('shareable', max_length=30, choices=IS_PUBLIC_CHOICES, blank=False, null=False, default=IS_PUBLIC_CHOICES[0][1], help_text='Your results can be viewed by everyone if is selected public. Otherwise, It requires sign in.')
@@ -93,11 +95,15 @@ class EnrichmentRecordModel(models.Model):
         return string_parser(self.gene_list)
 
     @property
-    def gene_count(self) -> int:
+    def get_gene_count(self) -> int:
         """
         Returns number of the genes that analyzed.
         """
-        return len(string_parser(self.gene_list))
+        return len(self.listed_genes)
+
+    def save(self, *args, **kwargs):
+        self.gene_count = self.get_gene_count
+        super(EnrichmentRecordModel, self).save(*args, **kwargs)
 
 @receiver(models.signals.post_delete, sender=EnrichmentRecordModel)
 def auto_delete_file_on_delete(sender, instance, **kwargs):
@@ -121,3 +127,23 @@ class EnrichmentSearchRecordModel(models.Model):
 
     def __str__(self):
         return f'Task Id: {self.searched_task_id} searched (Is valid: {self.is_task_id_valid}) at {self.searched_at}.'
+
+class ContactUsModel(models.Model):
+
+    SUBJECT = (
+        ('general_info', 'General Information'),
+        ('suggestion', 'Suggestion'),
+        ('request_for_support', 'Request for Support'),
+        ('contrib_to_dev', 'Contribute to Development'),
+        ('bug_declaration', 'Bug Declaration'),
+        ('other', 'Other')
+    )
+
+    name = models.CharField('name', max_length=128, blank=False, null=False)
+    contact_at = models.DateTimeField('contact_at', auto_now_add=True)
+    email = models.EmailField('email', max_length=255)
+    subject = models.CharField('subject', choices=SUBJECT, default=SUBJECT[0][1], max_length=255)
+    message = models.TextField('message', max_length=1024)
+
+    def __str__(self):
+        return f'Subject: {self.subject} from {self.email}'

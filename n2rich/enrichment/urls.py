@@ -20,6 +20,7 @@ urlpatterns = [
     path('get_record', views.SearchRecordView.as_view(), name='get_record'),
     path('get_record/<uuid:task_id>', views.RecordView.as_view(), name='record'),
     path('myrecords/', views.UserRecords.as_view(), name='user_records'),
+    path('contact_us', views.ContactUsView.as_view(), name='contact_us'),
 
     path('signup/', SignupView.as_view(), name='signup'),
     path('login/', UserLoginView.as_view(), name='login'),
