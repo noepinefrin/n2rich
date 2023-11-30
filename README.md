@@ -78,3 +78,8 @@ def _fold_enrichment(self, x, N, G, n) -> float:
         """
         return "{:0.2f}".format((x / n) / (G / N))
 ```
+
+
+Contact
+-------
+For any inquiries or questions regarding N2Rich or its functionalities, please feel free to contact me directly. I can be reached via email at berkayozcelik77@hotmail.com or through my LinkedIn profile at [LinkedIn](linkedin.com/in/berkay-ozcelik/).
